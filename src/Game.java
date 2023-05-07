@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 
 public class Game extends JFrame {
     JPanel menu = new JPanel(new BorderLayout());
-    int size;
+    int width, height;
     public Game(){
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -18,9 +18,8 @@ public class Game extends JFrame {
 
         JPanel btn = new JPanel(new GridBagLayout());
         btn.setBackground(Color.black);
-        menu.add(getPacmanName(), BorderLayout.NORTH);
+        menu.add(getPacmanTitle(), BorderLayout.NORTH);
         add(menu);
-        System.out.println(menu.getSize());
         GridBagConstraints gb = new GridBagConstraints();
         gb.fill = GridBagConstraints.HORIZONTAL;
         gb.weightx = 1;
@@ -36,7 +35,7 @@ public class Game extends JFrame {
 
 
     }
-    JLabel getPacmanName(){
+    JLabel getPacmanTitle(){
         JLabel name = new JLabel("PACMAN", JLabel.CENTER);
         name.setOpaque(true);
         name.setPreferredSize(new Dimension(200, 100));
@@ -47,8 +46,6 @@ public class Game extends JFrame {
     }
     JButton getStartButton(){
         JButton start = new JButton("Start");
-
-//        start.setBorder(BorderFactory.createEmptyBorder(70, 140, 70, 140));
         start.setForeground(Color.ORANGE);
         start.setBorder(BorderFactory.createLineBorder(Color.GREEN, 3));
         start.setPreferredSize(new Dimension(140,70));
@@ -57,19 +54,29 @@ public class Game extends JFrame {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String s = JOptionPane.showInputDialog(menu, "What size do you want to play?","Size pick", JOptionPane.QUESTION_MESSAGE);
+                String s = JOptionPane.showInputDialog(menu, "What width do you want to play?","Width pick", JOptionPane.QUESTION_MESSAGE);
                 try{
                     if(Integer.parseInt(s) >= 10 && Integer.parseInt(s) <= 100){
-                        System.out.println("ok");
-                        size = Integer.parseInt(s);
-                        setVisible(false);
-                        SwingUtilities.invokeLater(() -> new GameTable(size));
+                        width = Integer.parseInt(s);
                     }else{
-                        System.out.println("not ok");
+                        JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
                     }
                 }catch(NumberFormatException k){
-                    System.out.println("Dolboeb?");
+                    JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
                 }
+                s = JOptionPane.showInputDialog(menu, "What height do you want to play?","Height pick", JOptionPane.QUESTION_MESSAGE);
+                try{
+                    if(Integer.parseInt(s) >= 10 && Integer.parseInt(s) <= 100){
+                        height = Integer.parseInt(s);
+                    }else{
+                        JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
+                    }
+                }catch(NumberFormatException k){
+                    JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
+                }
+                setVisible(false);
+                SwingUtilities.invokeLater(() -> new GameWindow(height, width));
+
             }
         });
         return start;
