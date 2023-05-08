@@ -54,29 +54,37 @@ public class Game extends JFrame {
         start.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                boolean checker = true;
                 String s = JOptionPane.showInputDialog(menu, "What width do you want to play?","Width pick", JOptionPane.QUESTION_MESSAGE);
                 try{
                     if(Integer.parseInt(s) >= 10 && Integer.parseInt(s) <= 100){
                         width = Integer.parseInt(s);
                     }else{
+                        checker = false;
                         JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
                     }
                 }catch(NumberFormatException k){
+                    checker = false;
                     JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
                 }
-                s = JOptionPane.showInputDialog(menu, "What height do you want to play?","Height pick", JOptionPane.QUESTION_MESSAGE);
-                try{
-                    if(Integer.parseInt(s) >= 10 && Integer.parseInt(s) <= 100){
-                        height = Integer.parseInt(s);
-                    }else{
+                if(checker) {
+                    s = JOptionPane.showInputDialog(menu, "What height do you want to play?", "Height pick", JOptionPane.QUESTION_MESSAGE);
+                    try {
+                        if (Integer.parseInt(s) >= 10 && Integer.parseInt(s) <= 100) {
+                            height = Integer.parseInt(s);
+                        } else {
+                            checker = false;
+                            JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (NumberFormatException k) {
+                        checker = false;
                         JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
                     }
-                }catch(NumberFormatException k){
-                    JOptionPane.showMessageDialog(menu, "That is not good size for playing, try again", "Inappropriate size", JOptionPane.ERROR_MESSAGE);
                 }
-                setVisible(false);
-                SwingUtilities.invokeLater(() -> new GameWindow(height, width));
-
+                if(checker) {
+                    setVisible(false);
+                    SwingUtilities.invokeLater(() -> new GameWindow(height, width));
+                }
             }
         });
         return start;
