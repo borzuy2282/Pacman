@@ -1,23 +1,26 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class GameWindow extends JFrame{
+    JLabel scoreNum;
     GameBoard board;
+    int second = 0;
 
     public GameWindow(int w, int h){
 //        setResizable(false);
         setLayout(new BorderLayout());
         board = new GameBoard(w, h);
         JPanel info = new JPanel();
-        add(info, BorderLayout.EAST);
+        add(info, BorderLayout.NORTH);
         add(board);
+        scoreNum = new JLabel("Score: " + board.score);
+        board.setGm(this);
         info.setBackground(Color.BLACK);
         info.setBorder(BorderFactory.createLineBorder(Color.BLUE, 4));
-        info.setPreferredSize(new Dimension(100, 1080));
+        info.setPreferredSize(new Dimension(1920, 50));
 
 
         setVisible(true);
@@ -29,12 +32,44 @@ public class GameWindow extends JFrame{
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                Dimension size = board.getSize();
-                board.field.setPreferredScrollableViewportSize(size);
-                board.field.revalidate();
+                board.field.setRowHeight(board.field.getHeight() / board.field.getRowCount());
+                for (int i = 0; i < board.field.getColumnCount(); i++) {
+                    board.field.getColumnModel().getColumn(i).setPreferredWidth(board.field.getWidth() / board.field.getColumnCount());
+                }
             }
         });
+        scoreNum.setForeground(Color.BLUE);
+        JLabel time = new JLabel(second + "s");
+        time.setForeground(Color.BLUE);
+        info.add(time);
+        info.add(scoreNum);
+        new Thread(() -> {
+            while(board.alive){
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                second++;
+                time.setText(second + "s");
+                time.repaint();
+            }
+        }).start();
+        new Thread(() -> {
+            while (board.alive){
+                scoreNum.setText("Score: " + board.score);
+                scoreNum.repaint();
+                try {
+                    Thread.sleep(board.speed);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).start();
+
 
 
     }
+
+
 }

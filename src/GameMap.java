@@ -3,9 +3,9 @@ import javax.swing.table.AbstractTableModel;
 
 public class GameMap extends AbstractTableModel {
 
-    int [][] fields;
+    ImageIcon [][] fields;
 
-    public GameMap(int[][] fields) {
+    public GameMap(ImageIcon[][] fields) {
         this.fields = fields;
     }
 
@@ -27,5 +27,10 @@ public class GameMap extends AbstractTableModel {
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
+    }
+
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        return ImageIcon.class;
     }
 }

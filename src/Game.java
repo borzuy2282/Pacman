@@ -82,7 +82,7 @@ public class Game extends JFrame {
                     }
                 }
                 if(checker) {
-                    setVisible(false);
+                    dispose();
                     SwingUtilities.invokeLater(() -> new GameWindow(height, width));
                 }
             }
