@@ -3,12 +3,16 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class GameBoard extends JPanel {
+    int allPoints = -1;
+    ArrayList <Ghost> ghosts = new ArrayList<>();
     boolean ctrl, enter, p;
+    int hearts = 3;
     GameWindow gm;
-    int score = 0;
+    int score = 1;
     boolean moving = true;
     boolean alive = true;
     int width, height;
@@ -22,8 +26,19 @@ public class GameBoard extends JPanel {
     ImageIcon pacmanUp = new ImageIcon("Images/PacmanUp.png");
     ImageIcon pacmanClosedLeft = new ImageIcon("Images/PacmanClosedLeft.png");
     ImageIcon pacmanClosedRight = new ImageIcon("Images/PacmanClosedRight.png");
+    ImageIcon bonus50 = new ImageIcon("Images/Bonus50.png");
+    ImageIcon bonusHp = new ImageIcon("Images/BonusHp.png");
+    ImageIcon bonusKilling = new ImageIcon("Images/BonusKilling.png");
+    ImageIcon bonusSpeed = new ImageIcon("Images/BonusSpeed.png");
+    ImageIcon ghostBrown = new ImageIcon("Images/GhostBrown.png");
+    ImageIcon ghostGreen = new ImageIcon("Images/GhostGreen.png");
+    ImageIcon ghostGrey = new ImageIcon("Images/GhostGrey.png");
+    ImageIcon ghostRed = new ImageIcon("Images/GhostRed.png");
 
-//    int [][] matrixInt;
+
+
+
+    //    int [][] matrixInt;
     ImageIcon [][] matrix;
     JTable field;
     int pacmanX, pacmanY, directionUD, directionRL;
@@ -55,11 +70,32 @@ public class GameBoard extends JPanel {
         new Thread(() -> {
             matrix[1][1] = pacmanRight;
             while (alive) {
+                boolean checker = true;
+                for (int i = 1; i < matrix.length; i++) {
+                    for (int j = 0; j < matrix[0].length; j++) {
+                        if(matrix[i][j] == point){
+                            checker = false;
+                            break;
+                        }
+                    }
+                }
+                if(checker){
+                    gm.endGame();
+                }
+                if(hearts <= 0){
+                    alive = false;
+                    break;
+                }
                 movement();
                 try {
                     Thread.sleep(speed);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                }
+                for (int i = 0; i < ghosts.size(); i++) {
+                    if(pacmanY == ghosts.get(i).y && pacmanX == ghosts.get(i).x){
+                        reset();
+                    }
                 }
             }
         }).start();
@@ -198,16 +234,31 @@ public class GameBoard extends JPanel {
         }
         int maxWalls = (height * width) / 5;
         int checkerHorizontal = 0;
-        for (int i = 1; i < height - 1; i++) {
+        for (int i = 0; i < matrix[0].length - 1; i++) {
+            if(i == 0){
+                matrix[1][i] = wall;
+                matrix[1][width - 1] = wall;
+                matrix[height - 2][i] = wall;
+                matrix[height - 2][width - 1] = wall;
+                continue;
+            }
+            matrix[1][i] = point;
+            allPoints ++;
+            matrix[height - 2][i] = point;
+            allPoints++;
+        }
+        for (int i = 2; i < height - 1; i++) {
             matrix[i][0] = wall;
             checkerHorizontal++;
             for (int j = 1; j < width - 1; j++) {
                 if(maxWalls == 0){
                     matrix[i][j] = point;
+                    allPoints++;
                     continue;
                 }
                 if(checkerHorizontal == 4){
                     matrix[i][j] = point;
+                    allPoints++;
                     checkerHorizontal = 0;
                     continue;
                 }
@@ -218,6 +269,7 @@ public class GameBoard extends JPanel {
                     maxWalls--;
                 }else{
                     matrix[i][j] = point;
+                    allPoints++;
                     checkerHorizontal = 0;
                 }
             }
@@ -226,6 +278,30 @@ public class GameBoard extends JPanel {
         matrix[1][1] = pacmanClosedRight;
         pacmanX = 1;
         pacmanY = 1;
+        matrix[1][width - 2] = ghostBrown;
+        Ghost brown = new Ghost(ghostBrown, 1, width - 2);
+        brown.setStartX(1);
+        brown.setStartY(width - 2);
+        matrix[height - 2][1] = ghostGreen;
+        Ghost green = new Ghost(ghostGreen, height - 2, 1);
+        green.setStartX(height - 2);
+        green.setStartY(1);
+        matrix[height - 2][width - 2] = ghostGrey;
+        Ghost grey = new Ghost(ghostGrey, height - 2, width - 2);
+        grey.setStartX(height - 2);
+        grey.setStartY(width - 2);
+        matrix[height / 2][width / 2] = ghostRed;
+        Ghost red = new Ghost(ghostRed, height / 2, width / 2);
+        red.setStartX(height / 2);
+        red.setStartY(width / 2);
+        ghosts.add(brown);
+        ghosts.add(green);
+        ghosts.add(grey);
+        ghosts.add(red);
+        for (int i = 0; i < ghosts.size(); i++) {
+            ghosts.get(i).setGb(this);
+            new Thread(ghosts.get(i)).start();
+        }
     }
     public void movement() {
         int x = pacmanX + directionUD;
@@ -259,6 +335,9 @@ public class GameBoard extends JPanel {
                     matrix[y][x] = pacmanClosedLeft;
                 }
             }
+            if(matrix[y][x] == ghostBrown || matrix[y][x] == ghostGreen || matrix[y][x] == ghostGrey || matrix[y][x] == ghostRed){
+                reset();
+            }
         pacmanX = x;
         pacmanY = y;
         moving = !moving;
@@ -268,12 +347,34 @@ public class GameBoard extends JPanel {
     private void scoreCount(){
         if(matrix[pacmanY + directionRL][pacmanX + directionUD] == point){
             score++;
-
+            allPoints--;
         }
     }
 
     public void setGm(GameWindow gm) {
         this.gm = gm;
+    }
+
+    public void setHearts(int hearts) {
+        this.hearts = hearts;
+    }
+    public void reset(){
+        hearts --;
+        pacmanX = 1;
+        pacmanY = 1;
+        for (int i = 0; i < ghosts.size(); i++) {
+            matrix[ghosts.get(i).y][ghosts.get(i).x] = empty;
+            ghosts.get(i).setX(ghosts.get(i).startX);
+            ghosts.get(i).setY(ghosts.get(i).startY);
+        }
+    }
+
+    public int getPacmanX() {
+        return pacmanX;
+    }
+
+    public int getPacmanY() {
+        return pacmanY;
     }
 
 }

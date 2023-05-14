@@ -8,6 +8,7 @@ public class GameWindow extends JFrame{
     JLabel scoreNum;
     GameBoard board;
     int second = 0;
+    ImageIcon heart = new ImageIcon("Images/Heart.png");
 
     public GameWindow(int w, int h){
 //        setResizable(false);
@@ -41,8 +42,11 @@ public class GameWindow extends JFrame{
         scoreNum.setForeground(Color.BLUE);
         JLabel time = new JLabel(second + "s");
         time.setForeground(Color.BLUE);
+        JLabel ht = new JLabel("Lives: " + board.hearts);
+        ht.setForeground(Color.red);
         info.add(time);
         info.add(scoreNum);
+        info.add(ht);
         new Thread(() -> {
             while(board.alive){
                 try {
@@ -52,6 +56,8 @@ public class GameWindow extends JFrame{
                 }
                 second++;
                 time.setText(second + "s");
+                ht.setText("Lives: " + board.hearts);
+                ht.repaint();
                 time.repaint();
             }
         }).start();
@@ -65,10 +71,17 @@ public class GameWindow extends JFrame{
                     throw new RuntimeException(e);
                 }
             }
+            endGame();
+
         }).start();
 
 
 
+    }
+    public void endGame(){
+        String name = JOptionPane.showInputDialog(board, "Please, enter you name and you will be added to a list", "To the list!", JOptionPane.QUESTION_MESSAGE);
+        dispose();
+        SwingUtilities.invokeLater(Game::new);
     }
 
 
