@@ -47,6 +47,7 @@ public class GameWindow extends JFrame{
         info.add(time);
         info.add(scoreNum);
         info.add(ht);
+
         new Thread(() -> {
             while(board.alive){
                 try {
@@ -80,6 +81,19 @@ public class GameWindow extends JFrame{
     }
     public void endGame(){
         String name = JOptionPane.showInputDialog(board, "Please, enter you name and you will be added to a list", "To the list!", JOptionPane.QUESTION_MESSAGE);
+        if(name.length() <= 3){
+            JOptionPane.showMessageDialog(board, "Length must be more than 3 characters!", "Error", JOptionPane.ERROR_MESSAGE);
+            endGame();
+            return;
+        }
+        Score sc = new Score(name);
+        sc.setScore(board.score);
+        sc.setTime(second);
+        sc.setSize(board.height * board.width - (2*board.width + 2*board.height));
+        sc.setResult(sc.getScore() / sc.getTime() * sc.getSize());
+        HighScore hs = new HighScore();
+        hs.addScore(sc);
+        hs.saveScores();
         dispose();
         SwingUtilities.invokeLater(Game::new);
     }

@@ -136,14 +136,11 @@ public class GameBoard extends JPanel {
                     directionUD = -1;
                     directionRL = 0;
 
-                } else if (e.getKeyCode() == KeyEvent.CTRL_DOWN_MASK) {
-                    ctrl = true;
-                } else if (e.getKeyCode() == KeyEvent.SHIFT_DOWN_MASK) {
-                    enter = true;
-                } else if (e.getKeyCode() == KeyEvent.VK_P) {
-                    p = true;
                 }
-
+                else if(e.getKeyCode() == KeyEvent.VK_W && e.isControlDown() && e.isShiftDown()){
+                    SwingUtilities.invokeLater(Game::new);
+                    gm.dispose();
+                }
             }
         });
     }

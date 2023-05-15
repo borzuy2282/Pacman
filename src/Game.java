@@ -2,8 +2,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
 
-public class Game extends JFrame {
+public class Game extends JFrame implements Serializable {
     JPanel menu = new JPanel(new BorderLayout());
     int width, height;
     public Game(){
@@ -97,6 +102,16 @@ public class Game extends JFrame {
         score.setPreferredSize(new Dimension(140,70));
         score.setBackground(Color.BLACK);
         score.setSize(140,70);
+//        score.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                JList <String> list = new JList();
+//                ArrayList<Score> scores = getScore();
+//                for (int i = 0; i < scores.size(); i++) {
+//                    list.addElement(scores.get(i));
+//                }
+//            }
+//        });
 
 
 
@@ -121,6 +136,19 @@ public class Game extends JFrame {
             }
         });
         return exit;
+    }
+    public ArrayList<Score> getScore(){
+        ArrayList<Score> scores = new ArrayList<>();
+        try{
+            FileInputStream fileIn = new FileInputStream("HighScore.ser");
+            ObjectInputStream in = new ObjectInputStream(fileIn);
+            scores = (ArrayList<Score>) in.readObject();
+            in.close();
+            fileIn.close();
+        }catch(IOException | ClassNotFoundException e ){
+            e.printStackTrace();
+        }
+        return scores;
     }
 
 }
