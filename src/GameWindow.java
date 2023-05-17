@@ -11,7 +11,6 @@ public class GameWindow extends JFrame{
     ImageIcon heart = new ImageIcon("Images/Heart.png");
 
     public GameWindow(int w, int h){
-//        setResizable(false);
         setLayout(new BorderLayout());
         board = new GameBoard(w, h);
         JPanel info = new JPanel();

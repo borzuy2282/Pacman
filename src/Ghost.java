@@ -1,13 +1,17 @@
 import javax.swing.*;
-import java.awt.*;
 import java.util.Random;
 
 public class Ghost extends Thread {
     ImageIcon color;
-    int x, y, px, py, startX, startY;
+    int x, y, px, py;
     ImageIcon last;
 
     GameBoard gb;
+    static ImageIcon bonus50 = new ImageIcon("Images/Bonus50.png");
+    static ImageIcon bonusHp = new ImageIcon("Images/BonusHp.png");
+    static ImageIcon bonusKilling = new ImageIcon("Images/BonusKilling.png");
+    static ImageIcon bonusSpeed = new ImageIcon("Images/BonusSpeed.png");
+    static ImageIcon bonusShield = new ImageIcon("Images/BonusShield.png");
 
 
 
@@ -25,207 +29,6 @@ public class Ghost extends Thread {
     @Override
     public void run() {
         while (gb.alive) {
-            /*if(y > x) {
-                if (py > y) {
-                    if (gb.matrix[y + 1][x] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y + 1][x];
-                        gb.matrix[y + 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y++;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y - 1][x];
-                        gb.matrix[y - 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y++;
-                        gb.repaint();
-                    }
-                } else if (py < y) {
-                    if (gb.matrix[y - 1][x] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y - 1][x];
-                        gb.matrix[y - 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y--;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y + 1][x];
-                        gb.matrix[y + 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y++;
-                        gb.repaint();
-                    }
-                } else if (px > x) {
-                    if (gb.matrix[y][x + 1] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y][x + 1];
-                        gb.matrix[y][x + 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x++;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y][x - 1];
-                        gb.matrix[y][x - 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x++;
-                        gb.repaint();
-                    }
-                } else if (px < x) {
-                    if (gb.matrix[y][x - 1] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y][x - 1];
-                        gb.matrix[y][x - 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x--;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y][x + 1];
-                        gb.matrix[y][x + 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x++;
-                        gb.repaint();
-                    }
-                } else {
-                    gb.setHearts(gb.hearts - 1);
-                    last = new ImageIcon("Images/Field.png");
-                    gb.reset();
-                    gb.repaint();
-                }
-            } else if (x > y) {
-                if (px > x) {
-                    if (gb.matrix[y][x + 1] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y][x + 1];
-                        gb.matrix[y][x + 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x++;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y][x - 1];
-                        gb.matrix[y][x - 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x--;
-                        gb.repaint();
-                    }
-                } else if (px < x) {
-                    if (gb.matrix[y][x - 1] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y][x - 1];
-                        gb.matrix[y][x - 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x--;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y][x + 1];
-                        gb.matrix[y][x + 1] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        x++;
-                        gb.repaint();
-                    }
-                }else if (py > y) {
-                    if (gb.matrix[y + 1][x] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y + 1][x];
-                        gb.matrix[y + 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y++;
-                        gb.repaint();
-                    } else{
-                        ImageIcon tmp = gb.matrix[y - 1][x];
-                        gb.matrix[y - 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y--;
-                        gb.repaint();
-                    }
-                } else if (py < y) {
-                    if (gb.matrix[y - 1][x] != gb.wall) {
-                        ImageIcon tmp = gb.matrix[y - 1][x];
-                        gb.matrix[y - 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y--;
-                        gb.repaint();
-                    }else{
-                        ImageIcon tmp = gb.matrix[y + 1][x];
-                        gb.matrix[y + 1][x] = color;
-                        gb.matrix[y][x] = last;
-                        last = tmp;
-                        y++;
-                        gb.repaint();
-                    }
-                }
-                else {
-                    gb.setHearts(gb.hearts - 1);
-                    last = new ImageIcon("Images/Field.png");
-                    gb.reset();
-                    gb.repaint();
-                }
-            }*/
-            /*int dx = px - x;
-            int dy = py - y;
-
-
-            // calculate the angle between ghost and Pacman using SOH-CAH-TOA ratios
-            double angle = Math.atan2(dy, dx);
-
-            // determine the direction in which the ghost should move
-            int rowDiff = 0;
-            int colDiff = 0;
-
-            if (angle < -Math.PI / 4 && angle >= -3 * Math.PI / 4) {
-                // move up
-                rowDiff = -1;
-                ImageIcon tmp = gb.matrix[y][x + rowDiff];
-                gb.matrix[y][x + rowDiff] = color;
-                gb.matrix[y][x] = last;
-                last= tmp;
-
-            } else if (angle >= -Math.PI / 4 && angle < Math.PI / 4) {
-                // move right
-                colDiff = 1;
-                ImageIcon tmp = gb.matrix[y + colDiff][x];
-                gb.matrix[y + colDiff][x] = color;
-                gb.matrix[y][x] = last;
-                last= tmp;
-            } else if (angle >= Math.PI / 4 && angle < 3 * Math.PI / 4) {
-                // move down
-                rowDiff = 1;
-                ImageIcon tmp = gb.matrix[y][x + rowDiff];
-                gb.matrix[y][x + rowDiff] = color;
-                gb.matrix[y][x] = last;
-                last= tmp;
-            } else {
-                // move left
-                colDiff = -1;
-                ImageIcon tmp = gb.matrix[y + colDiff][x];
-                gb.matrix[y + colDiff][x] = color;
-                gb.matrix[y][x] = last;
-                last= tmp;
-            }
-            if(px == x && py == y){
-                gb.reset();
-                gb.repaint();
-            }
-
-            // move the ghost in the calculated direction
-            int newRow = y + rowDiff;
-            int newCol = x + colDiff;
-            try {
-                Thread.sleep(300);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            px = gb.getPacmanX();
-            py = gb.getPacmanY();
-            gb.repaint();*/
             Random rn = new Random();
             int pick = rn.nextInt(7, 11);
             switch (pick){
@@ -250,7 +53,7 @@ public class Ghost extends Thread {
         if(gb.matrix[y + 1][x] != gb.wall){
             ImageIcon tmp = gb.matrix[y + 1][x];
             gb.matrix[y + 1][x] = color;
-            if(last != gb.point && last != gb.empty){
+            if(last != gb.point && last != gb.empty && last != bonus50 && last != bonusHp && last != bonusShield && last != bonusSpeed &&  last != bonusKilling ){
                 last = gb.point;
             }
             gb.matrix[y][x] = last;
@@ -263,7 +66,7 @@ public class Ghost extends Thread {
         if(gb.matrix[y - 1][x] != gb.wall){
             ImageIcon tmp = gb.matrix[y - 1][x];
             gb.matrix[y - 1][x] = color;
-            if(last != gb.point && last != gb.empty){
+            if(last != gb.point && last != gb.empty && last != bonus50 && last != bonusHp && last != bonusShield && last != bonusSpeed &&  last != bonusKilling ){
                 last = gb.point;
             }
             gb.matrix[y][x] = last;
@@ -276,7 +79,8 @@ public class Ghost extends Thread {
         if(gb.matrix[y][x - 1] != gb.wall){
             ImageIcon tmp = gb.matrix[y][x - 1];
             gb.matrix[y][x - 1] = color;
-            if(last != gb.point && last != gb.empty){
+
+            if(last != gb.point && last != gb.empty && last != bonus50 && last != bonusHp && last != bonusShield && last != bonusSpeed &&  last != bonusKilling ){
                 last = gb.point;
             }
             gb.matrix[y][x] = last;
@@ -289,7 +93,7 @@ public class Ghost extends Thread {
         if(gb.matrix[y][x + 1] != gb.wall){
             ImageIcon tmp = gb.matrix[y][x + 1];
             gb.matrix[y][x + 1] = color;
-            if(last != gb.point && last != gb.empty){
+            if(last != gb.point && last != gb.empty && last != bonus50 && last != bonusHp && last != bonusShield && last != bonusSpeed &&  last != bonusKilling ){
                 last = gb.point;
             }
             gb.matrix[y][x] = last;
@@ -298,19 +102,31 @@ public class Ghost extends Thread {
             gb.repaint();
         }
     }
-    public void setStartX(int startX) {
-        this.startX = startX;
-    }
+    public void dropBonus() {
+        new Thread(() -> {
+            while (gb.alive) {
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                Random rn = new Random();
+                int probability = rn.nextInt(1, 101);
+                if (probability < 25) {
+                    int pickBonus = rn.nextInt(1, 6);
+                    switch (pickBonus) {
+                        case 1 -> last = bonus50;
+                        case 2 -> last = bonusHp;
+                        case 3 -> last = bonusShield;
+                        case 4 -> last = bonusSpeed;
+                    }
+                    if (pickBonus == 5 && !gb.killed) {
+                        last = bonusKilling;
+                        gb.killed = true;
+                    }
 
-    public void setStartY(int startY) {
-        this.startY = startY;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+                }
+            }
+        }).start();
     }
 }

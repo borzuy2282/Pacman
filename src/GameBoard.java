@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class GameBoard extends JPanel {
-    boolean bSpeed, bKilling, bShield = true;
+    boolean killed = false;
     boolean shieldActive = false;
     int allPoints = -1;
     ArrayList <Ghost> ghosts = new ArrayList<>();
@@ -26,11 +26,6 @@ public class GameBoard extends JPanel {
     ImageIcon pacmanUp = new ImageIcon("Images/PacmanUp.png");
     ImageIcon pacmanClosedLeft = new ImageIcon("Images/PacmanClosedLeft.png");
     ImageIcon pacmanClosedRight = new ImageIcon("Images/PacmanClosedRight.png");
-    ImageIcon bonus50 = new ImageIcon("Images/Bonus50.png");
-    ImageIcon bonusHp = new ImageIcon("Images/BonusHp.png");
-    ImageIcon bonusKilling = new ImageIcon("Images/BonusKilling.png");
-    ImageIcon bonusSpeed = new ImageIcon("Images/BonusSpeed.png");
-    ImageIcon bonusShield = new ImageIcon("Images/BonusShield.png");
     ImageIcon ghostBrown = new ImageIcon("Images/GhostBrown.png");
     ImageIcon ghostGreen = new ImageIcon("Images/GhostGreen.png");
     ImageIcon ghostGrey = new ImageIcon("Images/GhostGrey.png");
@@ -56,37 +51,36 @@ public class GameBoard extends JPanel {
         for (int i = 0; i < field.getColumnCount(); i++) {
             field.getColumnModel().getColumn(i).setPreferredWidth(iWidth);
         }
-//        field.setFocusable(true);
-//        field.requestFocusInWindow();
-//        field.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         new Thread(() -> {
-            matrix[1][1] = pacmanRight;
-            while (alive) {
-                boolean checker = true;
-                for (int i = 1; i < matrix.length; i++) {
-                    for (int j = 0; j < matrix[0].length; j++) {
-                        if(matrix[i][j] == point){
-                            checker = false;
-                            break;
+            synchronized (this) {
+                matrix[1][1] = pacmanRight;
+                while (alive) {
+                    boolean checker = true;
+                    for (int i = 1; i < matrix.length; i++) {
+                        for (int j = 0; j < matrix[0].length; j++) {
+                            if (matrix[i][j] == point) {
+                                checker = false;
+                                break;
+                            }
                         }
                     }
-                }
-                if(checker){
-                    gm.endGame();
-                }
-                if(hearts <= 0){
-                    alive = false;
-                    break;
-                }
-                movement();
-                try {
-                    Thread.sleep(speed);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                for (int i = 0; i < ghosts.size(); i++) {
-                    if(pacmanY == ghosts.get(i).y && pacmanX == ghosts.get(i).x){
-                        reset();
+                    if (checker) {
+                        gm.endGame();
+                    }
+                    if (hearts <= 0) {
+                        alive = false;
+                        break;
+                    }
+                    movement();
+                    try {
+                        Thread.sleep(speed);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    for (int i = 0; i < ghosts.size(); i++) {
+                        if (pacmanY == ghosts.get(i).y && pacmanX == ghosts.get(i).x) {
+                            reset();
+                        }
                     }
                 }
             }
@@ -95,36 +89,17 @@ public class GameBoard extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-//                        matrix[pacmanY + 1][pacmanX] = pacmanRight;
-//                        matrix[pacmanY][pacmanX] = empty;
-//                        pacmanY++;
-//                        repaint();
                     directionRL = 1;
                     directionUD = 0;
                 } else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-
-//                        matrix[pacmanY - 1][pacmanX] = pacmanLeft;
-//                        matrix[pacmanY][pacmanX] = empty;
-//                        pacmanY--;
-//                        repaint();
                     directionRL = -1;
                     directionUD = 0;
 
                 } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-
-//                        matrix[pacmanY][pacmanX + 1] = pacmanDown;
-//                        matrix[pacmanY][pacmanX] = empty;
-//                        pacmanX++;
-//                        repaint();
                     directionUD = 1;
                     directionRL = 0;
 
                 } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-
-//                        matrix[pacmanY][pacmanX - 1] = pacmanUp;
-//                        matrix[pacmanY][pacmanX] = empty;
-//                        pacmanX--;
-//                        repaint();
                     directionUD = -1;
                     directionRL = 0;
 
@@ -204,26 +179,24 @@ public class GameBoard extends JPanel {
         for (int i = 0; i < ghosts.size(); i++) {
             ghosts.get(i).setGb(this);
             ghosts.get(i).start();
+            ghosts.get(i).dropBonus();
         }
     }
     public void movement() {
+        System.out.println(speed);
         int x = pacmanX + directionUD;
         int y = pacmanY + directionRL;
         matrix[pacmanY][pacmanX] = empty;
         if (matrix[y][x] != wall) {
-            if(matrix[y][x] == bonus50){
+            if(matrix[y][x] == Ghost.bonus50){
                 score += 50;
-            }else if(matrix[y][x] == bonusHp){
+            }else if(matrix[y][x] == Ghost.bonusHp){
                 if(hearts < 3){
                     hearts++;
                 }
-            }else if(matrix[y][x] == bonusSpeed) {
-                if (bSpeed) {
+            }else if(matrix[y][x] == Ghost.bonusSpeed) {
                     speedBonus();
-                }
-            } else if (matrix[y][x] == bonusKilling) {
-                if(bKilling){
-                    bKilling = false;
+            } else if (matrix[y][x] == Ghost.bonusKilling) {
                     int dx, dy;
                     Ghost g = ghosts.get(0);
                     dx = g.x;
@@ -231,11 +204,8 @@ public class GameBoard extends JPanel {
                     g.stop();
                     matrix[dy][dx] = point;
                     ghosts.remove(0);
-                }
-            } else if (matrix[y][x] == bonusShield) {
-                if(bShield){
+            } else if (matrix[y][x] == Ghost.bonusShield) {
                     shieldBonus();
-                }
             }
             scoreCount();
             if (directionUD == 1) {
@@ -326,38 +296,27 @@ public class GameBoard extends JPanel {
         pacmanY = 1;
         directionRL = 0;
     }
-    private void speedBonus(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                bSpeed = false;
-                speed = 125;
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                speed = 250;
-                bSpeed = true;
+    private synchronized void speedBonus(){
+        new Thread(() -> {
+            speed = 100;
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            speed = 250;
         }).start();
     }
-    private void shieldBonus(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                bShield = false;
-                shieldActive = true;
-                try {
-                    Thread.sleep(15000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-                shieldActive = false;
-                bShield = true;
+    private synchronized void shieldBonus() {
+        new Thread(() -> {
+            shieldActive = true;
+            try {
+                Thread.sleep(15000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            shieldActive = false;
         }).start();
     }
-
-
 }
+
