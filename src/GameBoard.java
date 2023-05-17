@@ -2,14 +2,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class GameBoard extends JPanel {
+    boolean bSpeed, bKilling, bShield = true;
+    boolean shieldActive = false;
     int allPoints = -1;
     ArrayList <Ghost> ghosts = new ArrayList<>();
-    boolean ctrl, enter, p;
     int hearts = 3;
     GameWindow gm;
     int score = 1;
@@ -30,15 +30,11 @@ public class GameBoard extends JPanel {
     ImageIcon bonusHp = new ImageIcon("Images/BonusHp.png");
     ImageIcon bonusKilling = new ImageIcon("Images/BonusKilling.png");
     ImageIcon bonusSpeed = new ImageIcon("Images/BonusSpeed.png");
+    ImageIcon bonusShield = new ImageIcon("Images/BonusShield.png");
     ImageIcon ghostBrown = new ImageIcon("Images/GhostBrown.png");
     ImageIcon ghostGreen = new ImageIcon("Images/GhostGreen.png");
     ImageIcon ghostGrey = new ImageIcon("Images/GhostGrey.png");
     ImageIcon ghostRed = new ImageIcon("Images/GhostRed.png");
-
-
-
-
-    //    int [][] matrixInt;
     ImageIcon [][] matrix;
     JTable field;
     int pacmanX, pacmanY, directionUD, directionRL;
@@ -53,10 +49,6 @@ public class GameBoard extends JPanel {
 
         add(field);
         field.setTableHeader(null);
-//        field.setCellSelectionEnabled(false);
-//        field.setFocusable(false);
-
-        Dimension dm = Toolkit.getDefaultToolkit().getScreenSize();
         int iWidth = matrix[0][0].getIconWidth();
         int iHeight = matrix[0][0].getIconHeight();
         field.setPreferredSize(new Dimension(iWidth * height, iHeight * width));
@@ -144,84 +136,6 @@ public class GameBoard extends JPanel {
             }
         });
     }
-//    private void generatingMatrix(){
-//        Random rn = new Random();
-//        matrix = new int[height][width];
-//        int checkerHor = 0;
-//        int size;
-//        if(width > height){
-//            size = width - height / 2;
-//        }else{
-//            size = height - width / 2;
-//        }
-//        int maxWall = height * width / 6;
-////        if(size < 20){
-////            maxWall = size;
-////        } else if (size < 30) {
-////            maxWall = size * 2;
-////        }else if (size < 40) {
-////            maxWall = size * 3;
-////        }else if (size < 50) {
-////            maxWall = size * 4;
-////        }else if (size < 60) {
-////            maxWall = size * 5;
-////        }else if (size < 70) {
-////            maxWall = size * 6;
-////        }else if (size < 80) {
-////            maxWall = size * 7;
-////        }else if (size < 90) {
-////            maxWall = size * 8;
-////        }else if (size < 100) {
-////            maxWall = size * 9;
-////        }else{
-////            maxWall = size * 10;
-////        }
-//
-//        for (int i = 0; i < width; i++) {
-//            matrix[0][i] = 0;
-//        }
-//
-//
-//        for (int i = 1; i < height - 1; i++) {
-//            matrix[i][0] = 0;
-//            for (int j = 1; j < width - 1; j++) {
-//                if(maxWall == 0){
-//                    matrix[i][j] = 1;
-//                    continue;
-//                }
-//                if(matrix[i][j - 1] == 0){
-//                    checkerHor++;
-//                }
-//                if( checkerHor == 4){
-//                    matrix[i][j] = 1;
-//                    checkerHor = 0;
-//                }
-//                int gen = rn.nextInt(10);
-//                if(gen == 9){
-//                        matrix[i][j] = 0;
-//                        checkerHor++;
-//                        maxWall--;
-//
-//                }else{
-//                    matrix[i][j] = 1;
-//                    checkerHor = 0;
-//                }
-//            }
-//            matrix[i][width - 1] = 0;
-//        }
-//
-//
-//        for (int i = 0; i < width; i++) {
-//            matrix[height - 1][i] = 0;
-//        }
-//        int pacmanPosition = 1;
-////        while(matrix[1][pacmanPosition] != 1){
-////            pacmanPosition ++;
-////        }
-//        matrix[1][pacmanPosition] = 2;
-//        pacmanX = 1;
-//        pacmanY = pacmanPosition;
-//    }
     public void generatingMatrix(){
         Random rn = new Random();
         matrix = new ImageIcon[height][width];
@@ -277,36 +191,92 @@ public class GameBoard extends JPanel {
         pacmanY = 1;
         matrix[1][width - 2] = ghostBrown;
         Ghost brown = new Ghost(ghostBrown, 1, width - 2);
-        brown.setStartX(1);
-        brown.setStartY(width - 2);
         matrix[height - 2][1] = ghostGreen;
         Ghost green = new Ghost(ghostGreen, height - 2, 1);
-        green.setStartX(height - 2);
-        green.setStartY(1);
         matrix[height - 2][width - 2] = ghostGrey;
         Ghost grey = new Ghost(ghostGrey, height - 2, width - 2);
-        grey.setStartX(height - 2);
-        grey.setStartY(width - 2);
         matrix[height / 2][width / 2] = ghostRed;
         Ghost red = new Ghost(ghostRed, height / 2, width / 2);
-        red.setStartX(height / 2);
-        red.setStartY(width / 2);
         ghosts.add(brown);
         ghosts.add(green);
         ghosts.add(grey);
         ghosts.add(red);
         for (int i = 0; i < ghosts.size(); i++) {
             ghosts.get(i).setGb(this);
-            new Thread(ghosts.get(i)).start();
+            ghosts.get(i).start();
         }
     }
     public void movement() {
         int x = pacmanX + directionUD;
         int y = pacmanY + directionRL;
-
+        matrix[pacmanY][pacmanX] = empty;
         if (matrix[y][x] != wall) {
+            if(matrix[y][x] == bonus50){
+                score += 50;
+            }else if(matrix[y][x] == bonusHp){
+                if(hearts < 3){
+                    hearts++;
+                }
+            }else if(matrix[y][x] == bonusSpeed) {
+                if (bSpeed) {
+                    speedBonus();
+                }
+            } else if (matrix[y][x] == bonusKilling) {
+                if(bKilling){
+                    bKilling = false;
+                    int dx, dy;
+                    Ghost g = ghosts.get(0);
+                    dx = g.x;
+                    dy = g.y;
+                    g.stop();
+                    matrix[dy][dx] = point;
+                    ghosts.remove(0);
+                }
+            } else if (matrix[y][x] == bonusShield) {
+                if(bShield){
+                    shieldBonus();
+                }
+            }
             scoreCount();
-            matrix[pacmanY][pacmanX] = empty;
+            if (directionUD == 1) {
+                if (moving) {
+                    matrix[y][x] = pacmanDown;
+                } else {
+                    matrix[y][x] = pacmanClosedRight;
+                }
+            } else if (directionUD == -1) {
+                if (moving) {
+                    matrix[y][x] = pacmanUp;
+                } else {
+                    matrix[y][x] = pacmanClosedLeft;
+                }
+            } else if (directionRL == 1) {
+                if (moving) {
+                    matrix[y][x] = pacmanRight;
+                } else {
+                    matrix[y][x] = pacmanClosedRight;
+                }
+            } else if (directionRL == -1) {
+                if (moving) {
+                    matrix[y][x] = pacmanLeft;
+                } else {
+                    matrix[y][x] = pacmanClosedLeft;
+                }
+            }
+            if(matrix[y][x] == ghostBrown || matrix[y][x] == ghostGreen || matrix[y][x] == ghostGrey || matrix[y][x] == ghostRed){
+                if(!shieldActive) {
+                    reset();
+                }else{
+                    shieldActive = false;
+                }
+            }
+        pacmanX = x;
+        pacmanY = y;
+        moving = !moving;
+        field.repaint();
+        }else{
+            x = pacmanX;
+            y = pacmanY;
             if (directionUD == 1) {
                 if (moving) {
                     matrix[y][x] = pacmanDown;
@@ -335,10 +305,8 @@ public class GameBoard extends JPanel {
             if(matrix[y][x] == ghostBrown || matrix[y][x] == ghostGreen || matrix[y][x] == ghostGrey || matrix[y][x] == ghostRed){
                 reset();
             }
-        pacmanX = x;
-        pacmanY = y;
-        moving = !moving;
-        field.repaint();
+            moving = !moving;
+            field.repaint();
         }
     }
     private void scoreCount(){
@@ -351,27 +319,45 @@ public class GameBoard extends JPanel {
     public void setGm(GameWindow gm) {
         this.gm = gm;
     }
-
-    public void setHearts(int hearts) {
-        this.hearts = hearts;
-    }
     public void reset(){
         hearts --;
         pacmanX = 1;
+        directionUD = 0;
         pacmanY = 1;
-        for (int i = 0; i < ghosts.size(); i++) {
-            matrix[ghosts.get(i).y][ghosts.get(i).x] = empty;
-            ghosts.get(i).setX(ghosts.get(i).startX);
-            ghosts.get(i).setY(ghosts.get(i).startY);
-        }
+        directionRL = 0;
+    }
+    private void speedBonus(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                bSpeed = false;
+                speed = 125;
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                speed = 250;
+                bSpeed = true;
+            }
+        }).start();
+    }
+    private void shieldBonus(){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                bShield = false;
+                shieldActive = true;
+                try {
+                    Thread.sleep(15000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                shieldActive = false;
+                bShield = true;
+            }
+        }).start();
     }
 
-    public int getPacmanX() {
-        return pacmanX;
-    }
-
-    public int getPacmanY() {
-        return pacmanY;
-    }
 
 }

@@ -102,16 +102,29 @@ public class Game extends JFrame implements Serializable {
         score.setPreferredSize(new Dimension(140,70));
         score.setBackground(Color.BLACK);
         score.setSize(140,70);
-//        score.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                JList <String> list = new JList();
-//                ArrayList<Score> scores = getScore();
-//                for (int i = 0; i < scores.size(); i++) {
-//                    list.addElement(scores.get(i));
-//                }
-//            }
-//        });
+        score.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DefaultListModel<String>listModel = new DefaultListModel<>();
+                ArrayList<Score> scores = getScore();
+                for (Score score : scores){
+                    listModel.addElement(String.valueOf(score));
+                }
+                JList <String> jList = new JList<>(listModel);
+                jList.setForeground(Color.BLUE);
+                jList.setBackground(Color.black);
+                jList.setFont(new Font("Times New Roman", Font.BOLD, 15));
+                JScrollPane jScrollPane = new JScrollPane(jList);
+                JFrame results = new JFrame();
+                results.add(jScrollPane);
+                results.setSize(200, 200);
+
+                jScrollPane.setBackground(Color.black);
+                results.setVisible(true);
+                results.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                results.setLocationRelativeTo(null);
+            }
+        });
 
 
 
@@ -138,16 +151,12 @@ public class Game extends JFrame implements Serializable {
         return exit;
     }
     public ArrayList<Score> getScore(){
-        ArrayList<Score> scores = new ArrayList<>();
-        try{
-            FileInputStream fileIn = new FileInputStream("HighScore.ser");
-            ObjectInputStream in = new ObjectInputStream(fileIn);
-            scores = (ArrayList<Score>) in.readObject();
-            in.close();
-            fileIn.close();
-        }catch(IOException | ClassNotFoundException e ){
-            e.printStackTrace();
+        HighScore hs = new HighScore();
+        hs.loadScores();
+        if(hs.getScores().size() > 1) {
+            hs.sortScore();
         }
+        ArrayList<Score> scores = hs.getScores();
         return scores;
     }
 

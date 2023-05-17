@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
-public class Ghost implements Runnable {
+public class Ghost extends Thread {
     ImageIcon color;
     int x, y, px, py, startX, startY;
     ImageIcon last;
@@ -11,10 +11,10 @@ public class Ghost implements Runnable {
 
 
 
-    public Ghost(ImageIcon color, int x, int y) {
+    public Ghost(ImageIcon color, int y, int x) {
         this.color = color;
-        this.x = y;
-        this.y = x;
+        this.x = x;
+        this.y = y;
         last = new ImageIcon("Images/Point.png");
     }
 
