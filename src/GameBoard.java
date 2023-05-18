@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -34,14 +36,14 @@ public class GameBoard extends JPanel {
     JTable field;
     int pacmanX, pacmanY, directionUD, directionRL;
 
-    public GameBoard(int w, int h) {
+    public GameBoard(int w, int h, GameWindow gm) {
         this.width = w;
         this.height = h;
+        this.gm = gm;
         generatingMatrix();
         field = new JTable(new GameMap(matrix));
         setVisible(true);
         setBackground(Color.BLACK);
-
         add(field);
         field.setTableHeader(null);
         int iWidth = matrix[0][0].getIconWidth();
@@ -79,7 +81,10 @@ public class GameBoard extends JPanel {
                     }
                     for (int i = 0; i < ghosts.size(); i++) {
                         if (pacmanY == ghosts.get(i).y && pacmanX == ghosts.get(i).x) {
-                            reset();
+                            if(!shieldActive){
+                                reset();
+                            }
+
                         }
                     }
                 }
@@ -104,6 +109,7 @@ public class GameBoard extends JPanel {
                     directionRL = 0;
 
                 }
+//                hotkey for living:
                 else if(e.getKeyCode() == KeyEvent.VK_W && e.isControlDown() && e.isShiftDown()){
                     SwingUtilities.invokeLater(Game::new);
                     gm.dispose();
@@ -161,6 +167,14 @@ public class GameBoard extends JPanel {
             }
             matrix[i][width - 1] = wall;
         }
+        for (int i = 1; i < matrix[0].length - 2; i++){
+            matrix[1][i] = point;
+            matrix[height - 2][i] = point;
+        }
+        for (int i = 1; i < matrix.length - 2; i++) {
+            matrix[i][1] = point;
+            matrix[i][width - 2] = point;
+        }
         matrix[1][1] = pacmanClosedRight;
         pacmanX = 1;
         pacmanY = 1;
@@ -183,11 +197,11 @@ public class GameBoard extends JPanel {
         }
     }
     public void movement() {
-        System.out.println(speed);
         int x = pacmanX + directionUD;
         int y = pacmanY + directionRL;
         matrix[pacmanY][pacmanX] = empty;
         if (matrix[y][x] != wall) {
+//            if touched a bonus:
             if(matrix[y][x] == Ghost.bonus50){
                 score += 50;
             }else if(matrix[y][x] == Ghost.bonusHp){
@@ -207,7 +221,9 @@ public class GameBoard extends JPanel {
             } else if (matrix[y][x] == Ghost.bonusShield) {
                     shieldBonus();
             }
+//            collecting a point:
             scoreCount();
+//            moving:
             if (directionUD == 1) {
                 if (moving) {
                     matrix[y][x] = pacmanDown;
@@ -272,6 +288,7 @@ public class GameBoard extends JPanel {
                     matrix[y][x] = pacmanClosedLeft;
                 }
             }
+//            if touch a pacman:
             if(matrix[y][x] == ghostBrown || matrix[y][x] == ghostGreen || matrix[y][x] == ghostGrey || matrix[y][x] == ghostRed){
                 reset();
             }
@@ -279,16 +296,14 @@ public class GameBoard extends JPanel {
             field.repaint();
         }
     }
+//    scoring points func:
     private void scoreCount(){
         if(matrix[pacmanY + directionRL][pacmanX + directionUD] == point){
             score++;
             allPoints--;
         }
     }
-
-    public void setGm(GameWindow gm) {
-        this.gm = gm;
-    }
+//    touching a ghost func:
     public void reset(){
         hearts --;
         pacmanX = 1;
@@ -296,6 +311,7 @@ public class GameBoard extends JPanel {
         pacmanY = 1;
         directionRL = 0;
     }
+//    speed bonus thread:
     private synchronized void speedBonus(){
         new Thread(() -> {
             speed = 100;
@@ -307,6 +323,7 @@ public class GameBoard extends JPanel {
             speed = 250;
         }).start();
     }
+//    shield thread:
     private synchronized void shieldBonus() {
         new Thread(() -> {
             shieldActive = true;

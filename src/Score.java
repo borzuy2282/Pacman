@@ -8,6 +8,10 @@ public class Score implements Serializable {
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public int getScore() {
         return score;
     }

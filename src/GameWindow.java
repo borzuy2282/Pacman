@@ -1,34 +1,28 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 public class GameWindow extends JFrame{
     JLabel scoreNum;
     GameBoard board;
     int second = 0;
-    ImageIcon heart = new ImageIcon("Images/Heart.png");
 
     public GameWindow(int w, int h){
         setLayout(new BorderLayout());
-        board = new GameBoard(w, h);
+        board = new GameBoard(w, h, this);
         JPanel info = new JPanel();
         add(info, BorderLayout.NORTH);
         add(board);
         scoreNum = new JLabel("Score: " + board.score);
-        board.setGm(this);
         info.setBackground(Color.BLACK);
         info.setBorder(BorderFactory.createLineBorder(Color.BLUE, 4));
-        info.setPreferredSize(new Dimension(1920, 50));
-
-
+        info.setPreferredSize(new Dimension(board.field.getWidth(), 50));
         setVisible(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension dm = toolkit.getScreenSize();
         setTitle("Pacman");
-        setBounds(0, 0, dm.width, dm.height);
+        setBounds(0, 0, board.field.getWidth(), board.field.getHeight() + info.getHeight() + 30);
+        setLocationRelativeTo(null);
+        //changing the size:
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
@@ -46,7 +40,7 @@ public class GameWindow extends JFrame{
         info.add(time);
         info.add(scoreNum);
         info.add(ht);
-
+//      thread for time and hearts counting:
         new Thread(() -> {
             while(board.alive){
                 try {
@@ -61,6 +55,7 @@ public class GameWindow extends JFrame{
                 time.repaint();
             }
         }).start();
+//        thread for score counting:
         new Thread(() -> {
             while (board.alive){
                 scoreNum.setText("Score: " + board.score);
@@ -78,10 +73,11 @@ public class GameWindow extends JFrame{
 
 
     }
+//    end game func:
     public void endGame(){
         String name = JOptionPane.showInputDialog(board, "Please, enter you name and you will be added to a list", "To the list!", JOptionPane.QUESTION_MESSAGE);
-        if(name.length() < 3 || name == null){
-            JOptionPane.showMessageDialog(board, "Length must be more than 3 characters!", "Error", JOptionPane.ERROR_MESSAGE);
+        if(name == null || name.length() < 3){
+            JOptionPane.showMessageDialog(board, "Length must be more than 3 characters!", "Error: 1", JOptionPane.ERROR_MESSAGE);
             endGame();
             return;
         }
@@ -89,10 +85,14 @@ public class GameWindow extends JFrame{
         sc.setScore(board.score);
         HighScore hs = new HighScore();
         hs.loadScores();
+        for(Score s : hs.getScores()){
+            if(s.getName().equals(name)){
+                JOptionPane.showMessageDialog(board, "There already was such a name, try another", "Error: 2", JOptionPane.ERROR_MESSAGE);
+                endGame();
+                return;
+            }
+        }
         hs.addScore(sc);
-//        if(hs.getScores().size() > 1) {
-//            hs.sortScore();
-//        }
         hs.saveScores();
         dispose();
         SwingUtilities.invokeLater(Game::new);
